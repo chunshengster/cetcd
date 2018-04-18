@@ -253,7 +253,7 @@ static cetcd_string cetcd_watcher_build_url(cetcd_client *cli, cetcd_watcher *wa
     url = sdscatprintf(sdsempty(), "%s/%s%s?wait=true", (cetcd_string)cetcd_array_get(cli->addresses, cli->picked),
             cli->keys_space, watcher->key);
     if (watcher->index) {
-        url = sdscatprintf(url, "&waitIndex=%lu", watcher->index);
+        url = sdscatprintf(url, "&waitIndex=%llu", watcher->index);
     }
     if (watcher->recursive) {
         url = sdscatprintf(url, "&recursive=true");
@@ -541,7 +541,7 @@ cetcd_response *cetcd_set(cetcd_client *cli, const char *key,
     params = sdscatprintf(sdsempty(), "value=%s", value_escaped);
     curl_free(value_escaped);
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -561,7 +561,7 @@ cetcd_response *cetcd_mkdir(cetcd_client *cli, const char *key, uint64_t ttl){
     req.uri = sdscatprintf(sdsempty(), "%s%s", cli->keys_space, key);
     params = sdscatprintf(sdsempty(), "dir=true&prevExist=false");
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -581,7 +581,7 @@ cetcd_response *cetcd_setdir(cetcd_client *cli, const char *key, uint64_t ttl){
     req.uri = sdscatprintf(sdsempty(), "%s%s", cli->keys_space, key);
     params = sdscatprintf(sdsempty(), "dir=true");
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -601,7 +601,7 @@ cetcd_response *cetcd_updatedir(cetcd_client *cli, const char *key, uint64_t ttl
     req.uri = sdscatprintf(sdsempty(), "%s%s", cli->keys_space, key);
     params = sdscatprintf(sdsempty(), "dir=true&prevExist=true");
     if (ttl){
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -628,7 +628,7 @@ cetcd_response *cetcd_update(cetcd_client *cli, const char *key,
         curl_free(value_escaped);
     }
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     if (refresh) {
         params = sdscatprintf(params, "&refresh=true");
@@ -655,7 +655,7 @@ cetcd_response *cetcd_create(cetcd_client *cli, const char *key,
     params = sdscatprintf(sdsempty(), "prevExist=false&value=%s", value_escaped);
     curl_free(value_escaped);
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -679,7 +679,7 @@ cetcd_response *cetcd_create_in_order(cetcd_client *cli, const char *key,
     params = sdscatprintf(sdsempty(), "value=%s", value_escaped);
     curl_free(value_escaped);
     if (ttl){
-        params = sdscatprintf(params ,"&ttl=%lu", ttl);
+        params = sdscatprintf(params ,"&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -724,7 +724,7 @@ cetcd_response *cetcd_watch(cetcd_client *cli, const char *key, uint64_t index) 
     memset(&req, 0, sizeof(cetcd_request));
     req.method = ETCD_HTTP_GET;
     req.api_type = ETCD_KEYS;
-    req.uri = sdscatprintf(sdsempty(), "%s%s?wait=true&waitIndex=%lu", cli->keys_space, key, index);
+    req.uri = sdscatprintf(sdsempty(), "%s%s?wait=true&waitIndex=%llu", cli->keys_space, key, index);
     resp = cetcd_cluster_request(cli, &req);
     sdsfree(req.uri);
     return resp;
@@ -737,7 +737,7 @@ cetcd_response *cetcd_watch_recursive(cetcd_client *cli, const char *key, uint64
     memset(&req, 0, sizeof(cetcd_request));
     req.method = ETCD_HTTP_GET;
     req.api_type = ETCD_KEYS;
-    req.uri = sdscatprintf(sdsempty(), "%s%s?wait=true&recursive=true&waitIndex=%lu", cli->keys_space, key, index);
+    req.uri = sdscatprintf(sdsempty(), "%s%s?wait=true&recursive=true&waitIndex=%llu", cli->keys_space, key, index);
     resp = cetcd_cluster_request(cli, &req);
     sdsfree(req.uri);
     return resp;
@@ -757,7 +757,7 @@ cetcd_response *cetcd_cmp_and_swap(cetcd_client *cli, const char *key, const cha
     params = sdscatprintf(sdsempty(), "value=%s&prevValue=%s", value_escaped, prev);
     curl_free(value_escaped);
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -776,10 +776,10 @@ cetcd_response *cetcd_cmp_and_swap_by_index(cetcd_client *cli, const char *key, 
     req.api_type = ETCD_KEYS;
     req.uri = sdscatprintf(sdsempty(), "%s%s", cli->keys_space, key);
     value_escaped = curl_easy_escape(cli->curl, value, strlen(value));
-    params = sdscatprintf(sdsempty(), "value=%s&prevIndex=%lu", value_escaped, prev);
+    params = sdscatprintf(sdsempty(), "value=%s&prevIndex=%llu", value_escaped, prev);
     curl_free(value_escaped);
     if (ttl) {
-        params = sdscatprintf(params, "&ttl=%lu", ttl);
+        params = sdscatprintf(params, "&ttl=%llu", ttl);
     }
     req.data = params;
     resp = cetcd_cluster_request(cli, &req);
@@ -806,7 +806,7 @@ cetcd_response *cetcd_cmp_and_delete_by_index(cetcd_client *cli, const char *key
     memset(&req, 0, sizeof(cetcd_request));
     req.method = ETCD_HTTP_DELETE;
     req.api_type = ETCD_KEYS;
-    req.uri = sdscatprintf(sdsempty(), "%s%s?prevIndex=%lu", cli->keys_space, key, prev);
+    req.uri = sdscatprintf(sdsempty(), "%s%s?prevIndex=%llu", cli->keys_space, key, prev);
     resp = cetcd_cluster_request(cli, &req);
     sdsfree(req.uri);
     return resp;
@@ -860,9 +860,9 @@ static void cetcd_node_print(cetcd_response_node *node) {
     int i, count;
     cetcd_response_node *n;
     if (node) {
-        printf("Node TTL: %lu\n", node->ttl);
-        printf("Node ModifiedIndex: %lu\n", node->modified_index);
-        printf("Node CreatedIndex: %lu\n", node->created_index);
+        printf("Node TTL: %llu\n", node->ttl);
+        printf("Node ModifiedIndex: %llu\n", node->modified_index);
+        printf("Node CreatedIndex: %llu\n", node->created_index);
         printf("Node Key: %s\n", node->key);
         printf("Node Value: %s\n", node->value);
         printf("Node Dir: %d\n", node->dir);
@@ -884,9 +884,9 @@ void cetcd_response_print(cetcd_response *resp) {
         return;
     }
     printf("Etcd Action:%s\n", cetcd_event_action[resp->action]);
-    printf("Etcd Index:%lu\n", resp->etcd_index);
-    printf("Raft Index:%lu\n", resp->raft_index);
-    printf("Raft Term:%lu\n", resp->raft_term);
+    printf("Etcd Index:%llu\n", resp->etcd_index);
+    printf("Raft Index:%llu\n", resp->raft_index);
+    printf("Raft Term:%llu\n", resp->raft_term);
     if (resp->node) {
         printf("-------------Node------------\n");
         cetcd_node_print(resp->node);
